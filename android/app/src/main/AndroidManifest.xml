@@ -2,7 +2,7 @@
     <application
         android:label="Notera"
         android:name="${applicationName}"
-        android:icon="@mipmap/notera"
+        android:icon="@mipmap/noteraapp"
         android:localeConfig="@xml/locales_config"
         >
         <activity
