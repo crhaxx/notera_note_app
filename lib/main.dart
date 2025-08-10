@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/services/isar_service.dart';
-import 'package:notera_note/views/home_page.dart';
+import 'package:notera_note/utils/navbar_logic.dart';
 import 'package:notera_note/utils/themes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(NoteraApp());
 }
 
@@ -20,15 +19,21 @@ class _NoteraAppState extends State<NoteraApp> {
   bool isDark = true;
   IsarService isarService = IsarService();
 
+  void changeTheme(bool darkTheme) {
+    setState(() {
+      isDark = darkTheme;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Notera',
       theme: isDark ? AppThemes.darkTheme : AppThemes.lightTheme,
-      home: HomePage(
-        toggleTheme: () => setState(() => isDark = !isDark),
+      home: BottomNavScreen(
+        key: ValueKey(isDark), // This forces rebuild when theme changes
         isDark: isDark,
-        isarService: isarService,
+        changeTheme: changeTheme,
       ),
     );
   }

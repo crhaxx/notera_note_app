@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
+import 'package:notera_note/services/search_notes.dart';
 import 'package:notera_note/views/note_detail_page.dart';
 import 'package:notera_note/widgets/note_tile.dart';
 import 'package:notera_note/widgets/theme_toggle.dart';
 
 class HomePage extends StatefulWidget {
-  final VoidCallback toggleTheme;
   final bool isDark;
   final IsarService isarService;
+  final Function(bool) changeTheme;
 
   const HomePage({
     super.key,
-    required this.toggleTheme,
     required this.isDark,
     required this.isarService,
+    required this.changeTheme,
   });
 
   @override
@@ -22,29 +23,58 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<List<Note>> _notesFuture;
+  final TextEditingController _searchController = TextEditingController();
+  late Future<List<Note>> _notesFuture = Future.value([]);
   final isarService = IsarService();
   bool isGrid = false;
   List<Note> notes = [];
+  late NoteRepository _noteRepo;
+  bool enableSearchbar = false;
 
   @override
   void initState() {
     super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    final isar = await widget.isarService.db;
+    _noteRepo = NoteRepository(isar);
     _loadNotes();
+    _searchController.addListener(() {
+      _search(_searchController.text);
+    });
   }
 
   void _loadNotes() async {
-    _notesFuture = widget.isarService.getAllNotes();
+    setState(() {
+      _notesFuture = widget.isarService.getAllNotes();
+    });
     final loadedNotes = await _notesFuture;
     setState(() {
       notes = loadedNotes;
     });
+
+    notes = await _noteRepo.searchNotes("");
+    _searchController.value = TextEditingValue(
+      text: "",
+      selection: TextSelection.collapsed(offset: 0),
+    );
+
+    enableSearchbar = true;
+    setState(() {});
   }
 
   void _toggleView() {
     setState(() {
       isGrid = !isGrid;
     });
+  }
+
+  Future<void> _search(String query) async {
+    notes = await _noteRepo.searchNotes(query);
+    _notesFuture = Future.value(notes);
+    setState(() {});
   }
 
   void _openNote(Note? note) async {
@@ -63,23 +93,37 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notera'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Search notes...",
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: Icon(isGrid ? Icons.view_list : Icons.grid_view),
             onPressed: _toggleView,
           ),
-          ThemeToggle(isDark: widget.isDark, toggleTheme: widget.toggleTheme),
+          ThemeToggle(isDark: widget.isDark, changeTheme: widget.changeTheme),
         ],
       ),
       body: FutureBuilder<List<Note>>(
         future: _notesFuture,
         builder: (context, snapshot) {
           final notes = snapshot.data ?? [];
-
           if (notes.isEmpty) {
-            return const Center(child: Text("Žádné poznámky"));
+            return const Center(child: Text("No notes"));
           }
-
           return GestureDetector(
             onHorizontalDragEnd: (details) {
               if (details.primaryVelocity != null &&
@@ -105,6 +149,7 @@ class _HomePageState extends State<HomePage> {
                           notes[i].updatedAt = DateTime.now();
                           await isarService.addNote(notes[i]);
                         },
+                        onPinToggle: _loadNotes,
                       ),
                     )
                   : ListView.builder(
@@ -117,6 +162,7 @@ class _HomePageState extends State<HomePage> {
                           notes[i].updatedAt = DateTime.now();
                           await isarService.addNote(notes[i]);
                         },
+                        onPinToggle: _loadNotes,
                       ),
                     ),
             ),

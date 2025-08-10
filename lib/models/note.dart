@@ -6,8 +6,12 @@ part 'note.g.dart';
 class Note {
   Id id = Isar.autoIncrement;
 
+  @Index(caseSensitive: false)
   String title;
+
+  @Index(caseSensitive: false)
   String content;
+
   bool isPinned = false;
   DateTime createdAt;
   DateTime updatedAt;
@@ -19,9 +23,7 @@ class Note {
     required this.updatedAt,
   });
 
-  Note.create({
-    required this.title,
-    required this.content,
-  })  : createdAt = DateTime.now(),
-        updatedAt = DateTime.now();
+  Note.create({required this.title, required this.content})
+    : createdAt = DateTime.now(),
+      updatedAt = DateTime.now();
 }

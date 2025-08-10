@@ -57,6 +57,11 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     }
   }
 
+  Future<void> _handleBack() async {
+    await _saveNote();
+    Navigator.pop(context, true);
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -66,76 +71,86 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isNewNote ? "Nová poznámka" : "Upravit poznámku"),
-        leading: IconButton(
-          onPressed: () async {
-            await _saveNote();
-            Navigator.pop(context, true);
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
-        actions: [
-          if (!isNewNote)
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () async {
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text("Smazat poznámku?"),
-                    content: Text("Opravdu chcete smazat tuto poznámku?"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: Text("Zrušit"),
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (!didPop) {
+          await _handleBack();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(isNewNote ? "New Note" : "Edit Note"),
+          leading: IconButton(
+            onPressed: _handleBack,
+            icon: Icon(Icons.arrow_back),
+          ),
+          actions: [
+            if (!isNewNote)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () async {
+                  final shouldDelete = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Delete note?"),
+                      content: Text(
+                        "Are you sure you want to delete this note?",
                       ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: Text(
-                          "Smazat",
-                          style: TextStyle(color: Colors.red),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(
+                            "Delete",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
 
-                if (shouldDelete == true) {
-                  await _deleteNote();
-                  Navigator.pop(context, true);
-                }
-              },
-            ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                hintText: "Nadpis",
-                border: InputBorder.none,
+                  if (shouldDelete == true) {
+                    await _deleteNote();
+                    Navigator.pop(context, true);
+                  }
+                },
               ),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: TextField(
-                controller: _contentController,
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _titleController,
                 decoration: const InputDecoration(
-                  hintText: "Obsah poznámky...",
+                  hintText: "Title",
                   border: InputBorder.none,
                 ),
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                expands: true,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Expanded(
+                child: TextField(
+                  controller: _contentController,
+                  decoration: const InputDecoration(
+                    hintText: "Note content...",
+                    border: InputBorder.none,
+                  ),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                  expands: true,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

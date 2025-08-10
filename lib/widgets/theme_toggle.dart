@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:notera_note/main.dart';
 
 class ThemeToggle extends StatelessWidget {
   final bool isDark;
-  final VoidCallback toggleTheme;
+  final Function(bool) changeTheme;
 
   const ThemeToggle({
     super.key,
     required this.isDark,
-    required this.toggleTheme,
+    required this.changeTheme,
   });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-      onPressed: toggleTheme,
+      onPressed: () {
+        changeTheme(!isDark);
+      },
     );
   }
 }
