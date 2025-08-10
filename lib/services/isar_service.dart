@@ -15,16 +15,14 @@ class IsarService {
 
   Future<Isar> _initDb() async {
     final dir = await getApplicationDocumentsDirectory();
-    return await Isar.open(
-      [NoteSchema],
-      directory: dir.path,
-    );
+    return await Isar.open([NoteSchema], directory: dir.path);
   }
 
   Future<List<Note>> getAllNotes() async {
     final isar = await db;
     return await isar.notes
         .where()
+        .isArchivedEqualTo(false)
         .sortByIsPinnedDesc()
         .thenByCreatedAtDesc()
         .findAll();
@@ -47,8 +45,29 @@ class IsarService {
   Future<void> togglePin(Note note) async {
     final isar = await db;
     note.isPinned = !note.isPinned;
+    note.updatedAt = DateTime.now();
     await isar.writeTxn(() async {
       await isar.notes.put(note);
     });
+  }
+
+  Future<void> archiveNote(int id, bool value) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      final note = await isar.notes.get(id);
+      if (note != null) {
+        note.isArchived = value;
+        await isar.notes.put(note);
+      }
+    });
+  }
+
+  Stream<List<Note>> listenToNotes({bool filterArchived = false}) async* {
+    final isar = await db;
+    final query = isar.notes
+        .filter()
+        .isArchivedEqualTo(filterArchived)
+        .sortByCreatedAtDesc();
+    yield* query.watch(fireImmediately: true);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
-import 'package:notera_note/views/home_page.dart';
 
 class NoteTile extends StatelessWidget {
   final Note note;
@@ -49,6 +48,24 @@ class NoteTile extends StatelessWidget {
             note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
             size: 20,
           ),
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            note.isArchived ? Icons.unarchive : Icons.archive,
+            color: Colors.grey,
+          ),
+          onPressed: () async {
+            await isarService.archiveNote(note.id, !note.isArchived);
+            onPinToggle(); // přenačte seznam po archivaci
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  note.isArchived ? 'Note unarchived' : 'Note archived',
+                ),
+                duration: Duration(seconds: 1),
+              ),
+            );
+          },
         ),
         subtitle: Text(
           note.content,

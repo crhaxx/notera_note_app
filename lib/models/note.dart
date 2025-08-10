@@ -12,7 +12,12 @@ class Note {
   @Index(caseSensitive: false)
   String content;
 
+  @Index()
   bool isPinned = false;
+
+  @Index()
+  bool isArchived = false;
+
   DateTime createdAt;
   DateTime updatedAt;
 

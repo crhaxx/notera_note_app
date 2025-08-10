@@ -22,6 +22,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   int _selectedIndex = 0;
   late IsarService isarService;
   late List<Widget> _pages;
+  final GlobalKey<HomePageState> _homePageKey = GlobalKey<HomePageState>();
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   void _createPages() {
     _pages = [
       HomePage(
+        key: _homePageKey,
         isDark: widget.isDark,
         isarService: isarService,
         changeTheme: widget.changeTheme,
@@ -46,6 +48,10 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     setState(() {
       _selectedIndex = index;
     });
+
+    if (index == 0) {
+      _homePageKey.currentState?.refreshNotes();
+    }
   }
 
   @override
@@ -56,7 +62,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Domů'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Archiv'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
