@@ -75,13 +75,6 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
       _notesFuture = Future.value(notes);
       enableSearchbar = true;
     });
-
-    print("Loaded ${notes.length} notes");
-    print(
-      notes
-          .map((note) => "${note.isPinned ? '[PINNED] ' : ''}${note.title}")
-          .toList(),
-    );
   }
 
   void _toggleView() {
@@ -153,7 +146,7 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
         builder: (context, snapshot) {
           final notes = snapshot.data ?? [];
           if (notes.isEmpty) {
-            return const Center(child: Text("No notes"));
+            return const Center(child: Text("No notes found"));
           }
           return GestureDetector(
             onHorizontalDragEnd: (details) {
@@ -174,26 +167,28 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
                           ),
                       itemBuilder: (_, i) => NoteTile(
                         note: notes[i],
+                        isGrid: isGrid,
                         onTap: () => _openNote(notes[i]),
                         onLongPress: () async {
                           notes[i].isPinned = !notes[i].isPinned;
                           notes[i].updatedAt = DateTime.now();
                           await isarService.addNote(notes[i]);
                         },
-                        onPinToggle: _loadNotes,
+                        onActionToRefresh: _loadNotes,
                       ),
                     )
                   : ListView.builder(
                       itemCount: notes.length,
                       itemBuilder: (_, i) => NoteTile(
                         note: notes[i],
+                        isGrid: isGrid,
                         onTap: () => _openNote(notes[i]),
                         onLongPress: () async {
                           notes[i].isPinned = !notes[i].isPinned;
                           notes[i].updatedAt = DateTime.now();
                           await isarService.addNote(notes[i]);
                         },
-                        onPinToggle: _loadNotes,
+                        onActionToRefresh: _loadNotes,
                       ),
                     ),
             ),

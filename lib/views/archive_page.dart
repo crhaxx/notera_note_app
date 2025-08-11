@@ -23,7 +23,7 @@ class _ArchivePageState extends State<ArchivePage> {
             return Center(child: CircularProgressIndicator());
           final notes = snapshot.data!;
           if (notes.isEmpty)
-            return Center(child: Text('Žádné archivované poznámky'));
+            return Center(child: Text('No archived notes found'));
           return ListView.builder(
             itemCount: notes.length,
             itemBuilder: (context, index) {

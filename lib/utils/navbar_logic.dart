@@ -63,10 +63,10 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Archiv'),
+          BottomNavigationBarItem(icon: Icon(Icons.archive), label: 'Archive'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: 'Nastavení',
+            label: 'Settings',
           ),
         ],
       ),
