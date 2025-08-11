@@ -70,4 +70,13 @@ class IsarService {
         .sortByCreatedAtDesc();
     yield* query.watch(fireImmediately: true);
   }
+
+  Future<void> updateNoteColor(int noteId, int colorValue) async {
+    final isar = await db;
+    final note = await isar.notes.get(noteId);
+    if (note != null) {
+      note.colorValue = colorValue;
+      await isar.writeTxn(() => isar.notes.put(note));
+    }
+  }
 }

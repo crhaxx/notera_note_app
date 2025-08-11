@@ -29,7 +29,9 @@ class NoteTile extends StatelessWidget {
     if (isGrid) {
       return Card(
         elevation: note.isPinned ? 4 : 1,
-        color: Theme.of(context).cardColor,
+        color: note.isPinned
+            ? Theme.of(context).highlightColor
+            : Theme.of(context).cardColor,
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
@@ -129,51 +131,17 @@ class NoteTile extends StatelessWidget {
     } else {
       return Card(
         elevation: note.isPinned ? 4 : 1,
-        color: Theme.of(context).cardColor,
+        color: note.isPinned
+            ? Theme.of(context).highlightColor
+            : Theme.of(context).cardColor,
         child: ListTile(
-          title: Text(note.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          leading: IconButton(
-            onPressed: () async {
-              await isarService.togglePin(note);
-              onActionToRefresh();
-              if (note.isPinned) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Note pinned'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Note unpinned'),
-                    duration: Duration(seconds: 1),
-                  ),
-                );
-              }
-            },
-            icon: Icon(
-              note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-              size: 20,
+          title: Text(
+            note.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: note.isPinned ? FontWeight.bold : FontWeight.normal,
             ),
-          ),
-          trailing: IconButton(
-            icon: Icon(
-              note.isArchived ? Icons.unarchive : Icons.archive,
-              color: Colors.grey,
-            ),
-            onPressed: () async {
-              await isarService.archiveNote(note.id, !note.isArchived);
-              onActionToRefresh(); // přenačte seznam po archivaci
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    note.isArchived ? 'Note unarchived' : 'Note archived',
-                  ),
-                  duration: Duration(seconds: 1),
-                ),
-              );
-            },
           ),
           subtitle: Text(
             note.content,
@@ -182,6 +150,152 @@ class NoteTile extends StatelessWidget {
           ),
           onTap: onTap,
           onLongPress: onLongPress,
+          leading: Icon(
+            note.isPinned ? Icons.text_fields : Icons.text_fields_outlined,
+            color: note.isPinned
+                ? Color(note.colorValue)
+                : Color(note.colorValue).withAlpha(180),
+          ),
+          trailing: PopupMenuButton<int>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) async {
+              switch (value) {
+                case 0: // Pin/Unpin
+                  await isarService.togglePin(note);
+                  onActionToRefresh();
+
+                  break;
+
+                case 1: // Change Color
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Change Color"),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              children: [
+                                for (var color in Colors.primaries)
+                                  GestureDetector(
+                                    onTap: () async {
+                                      await isarService.updateNoteColor(
+                                        note.id,
+                                        color.value,
+                                      );
+                                      Navigator.pop(context);
+                                      onActionToRefresh();
+                                    },
+                                    child: CircleAvatar(
+                                      backgroundColor: color,
+                                      radius: 20,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  break;
+
+                case 2: // Archive/Unarchive
+                  await isarService.archiveNote(note.id, !note.isArchived);
+                  onActionToRefresh();
+
+                  break;
+
+                case 3: // Delete
+                  final shouldDelete = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text("Delete note?"),
+                      content: Text(
+                        "Are you sure you want to delete this note?",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(
+                            "Delete",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (shouldDelete == true) {
+                    await _deleteNote(note);
+                    onActionToRefresh();
+                  }
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 0,
+                child: Row(
+                  children: [
+                    Icon(
+                      note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(note.isPinned ? 'Unpin' : 'Pin'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 1,
+                child: Row(
+                  children: [
+                    Icon(Icons.palette, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Change Color'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 2,
+                child: Row(
+                  children: [
+                    Icon(
+                      note.isArchived ? Icons.unarchive : Icons.archive,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(note.isArchived ? 'Unarchive' : 'Archive'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: 3,
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, size: 20, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }

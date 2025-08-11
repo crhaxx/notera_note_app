@@ -19,11 +19,13 @@ class _ArchivePageState extends State<ArchivePage> {
       body: StreamBuilder<List<Note>>(
         stream: isarService.listenToNotes(filterArchived: true),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
+          }
           final notes = snapshot.data!;
-          if (notes.isEmpty)
+          if (notes.isEmpty) {
             return Center(child: Text('No archived notes found'));
+          }
           return ListView.builder(
             itemCount: notes.length,
             itemBuilder: (context, index) {

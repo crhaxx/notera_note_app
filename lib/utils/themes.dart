@@ -6,7 +6,11 @@ class AppThemes {
       primary: Colors.tealAccent,
       background: Color(0xFF121212),
     ),
-    cardColor: const Color(0xFF1E1E1E),
+
+    //PINNED - NOTPINNED
+    highlightColor: Color.fromARGB(255, 54, 54, 54),
+    cardColor: Color.fromARGB(255, 34, 34, 34),
+
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFF1E1E1E),
       foregroundColor: Colors.white,
@@ -18,7 +22,11 @@ class AppThemes {
       primary: Colors.blue,
       background: Colors.white,
     ),
-    cardColor: Colors.white,
+
+    //PINNED - NOTPINNED
+    highlightColor: Colors.white,
+    cardColor: Colors.white.withAlpha(240),
+
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,
       foregroundColor: Colors.black,

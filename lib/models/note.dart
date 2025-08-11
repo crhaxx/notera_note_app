@@ -18,6 +18,8 @@ class Note {
   @Index()
   bool isArchived = false;
 
+  int colorValue = 0x000000;
+
   DateTime createdAt;
   DateTime updatedAt;
 

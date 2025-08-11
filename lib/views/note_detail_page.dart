@@ -17,6 +17,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   final _contentController = TextEditingController();
   late bool isNewNote;
   bool isDark = true;
+  Color selectedColor = Colors.black;
 
   @override
   void initState() {
@@ -26,6 +27,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     if (!isNewNote) {
       _titleController.text = widget.note!.title;
       _contentController.text = widget.note!.content;
+    }
+
+    if (widget.note != null) {
+      selectedColor = Color(widget.note!.colorValue);
     }
   }
 
@@ -46,6 +51,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
     note.title = title;
     note.content = content;
+    note.colorValue = selectedColor.value;
     note.updatedAt = DateTime.now();
 
     await isarService.addNote(note);
@@ -130,9 +136,24 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             children: [
               TextField(
                 controller: _titleController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Title",
-                  border: InputBorder.none,
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: selectedColor, width: 1.0),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: selectedColor, width: 2.0),
+                  ),
+                  // Volitelně: stejná barva i pro další stavy
+                  disabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: selectedColor),
+                  ),
+                  errorBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: selectedColor),
+                  ),
+                  focusedErrorBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: selectedColor),
+                  ),
                 ),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
@@ -149,6 +170,47 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   expands: true,
                 ),
               ),
+
+              // Row(
+              //   children: [
+              //     for (final color in [
+              //       Colors.red,
+              //       Colors.green,
+              //       Colors.blue,
+              //       Colors.orange,
+              //       Colors.purple,
+              //     ])
+              //       GestureDetector(
+              //         onTap: () async {
+              //           setState(() {
+              //             selectedColor = color;
+              //           });
+
+              //           if (!isNewNote && widget.note != null) {
+              //             await isarService.updateNoteColor(
+              //               widget.note!.id,
+              //               color.value,
+              //             );
+              //           }
+              //         },
+              //         child: Container(
+              //           margin: const EdgeInsets.symmetric(horizontal: 4),
+              //           width: 28,
+              //           height: 28,
+              //           decoration: BoxDecoration(
+              //             color: color,
+              //             shape: BoxShape.circle,
+              //             border: Border.all(
+              //               color: selectedColor == color
+              //                   ? Colors.black
+              //                   : Colors.transparent,
+              //               width: 2,
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //   ],
+              // ),
             ],
           ),
         ),

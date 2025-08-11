@@ -187,6 +187,8 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
                           notes[i].isPinned = !notes[i].isPinned;
                           notes[i].updatedAt = DateTime.now();
                           await isarService.addNote(notes[i]);
+
+                          _loadNotes();
                         },
                         onActionToRefresh: _loadNotes,
                       ),
