@@ -3,11 +3,23 @@ import 'package:notera_note/services/isar_service.dart';
 import 'package:notera_note/utils/navbar_logic.dart';
 import 'package:notera_note/utils/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(NoteraApp());
+  await AwesomeNotifications().initialize('resource://mipmap/noteraapp', [
+    NotificationChannel(
+      channelKey: 'note_reminders',
+      channelName: 'Note Reminders',
+      channelDescription: 'Připomínky k poznámkám',
+      defaultColor: const Color(0xFF9D50DD),
+      importance: NotificationImportance.High,
+      channelShowBadge: true,
+    ),
+  ], debug: true);
+
+  runApp(const NoteraApp());
 }
 
 class NoteraApp extends StatefulWidget {
@@ -26,6 +38,15 @@ class _NoteraAppState extends State<NoteraApp> {
   void initState() {
     super.initState();
     _loadTheme();
+    allowNotifications();
+  }
+
+  void allowNotifications() async {
+    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
   }
 
   Future<void> _loadTheme() async {

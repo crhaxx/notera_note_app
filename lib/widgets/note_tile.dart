@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
+import 'package:notera_note/services/notification_service.dart';
 
 class NoteTile extends StatelessWidget {
   final Note note;
@@ -118,6 +119,7 @@ class NoteTile extends StatelessWidget {
                         if (shouldDelete == true) {
                           await _deleteNote(note);
                           onActionToRefresh();
+                          await NotificationService.cancelNotification(note.id);
                         }
                       },
                     ),

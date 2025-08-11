@@ -21,6 +21,7 @@ subprojects {
         }
     }
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

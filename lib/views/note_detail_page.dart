@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
+import 'package:notera_note/services/notification_service.dart';
 import 'package:share_plus/share_plus.dart';
 
 class NoteDetailPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   late bool isNewNote;
   bool isDark = true;
   Color selectedColor = Colors.black;
+  DateTime? reminderDate;
 
   @override
   void initState() {
@@ -33,6 +35,34 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     if (widget.note != null) {
       selectedColor = Color(widget.note!.colorValue);
     }
+  }
+
+  Future<void> _pickReminder() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (date == null) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (time == null) return;
+
+    setState(() {
+      reminderDate = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+    });
+
+    _saveNote();
   }
 
   Future<void> _saveNote() async {
@@ -54,6 +84,15 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     note.content = content;
     note.colorValue = selectedColor.value;
     note.updatedAt = DateTime.now();
+
+    if (reminderDate != null) {
+      await NotificationService.scheduleNotification(
+        id: widget.note?.id ?? DateTime.now().millisecondsSinceEpoch,
+        title: note.title.isEmpty ? "Note Reminder" : note.title,
+        body: note.content,
+        scheduledDate: reminderDate!,
+      );
+    }
 
     await isarService.addNote(note);
   }
@@ -144,6 +183,17 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   expands: true,
                 ),
               ),
+
+              if (!isNewNote)
+                ElevatedButton.icon(
+                  onPressed: _pickReminder,
+                  icon: Icon(Icons.alarm),
+                  label: Text(
+                    reminderDate == null
+                        ? "Nastavit připomínku"
+                        : "Připomínka: ${reminderDate.toString()}",
+                  ),
+                ),
 
               // Row(
               //   children: [
