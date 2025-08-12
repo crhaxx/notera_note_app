@@ -3,11 +3,14 @@ import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
 import 'package:notera_note/services/notification_service.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:notera_note/utils/app_globals.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final Note? note;
+  final Function(bool) changeTheme;
 
-  const NoteDetailPage({super.key, this.note});
+  const NoteDetailPage({super.key, this.note, required this.changeTheme});
 
   @override
   State<NoteDetailPage> createState() => _NoteDetailPageState();
@@ -30,14 +33,60 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     if (!isNewNote) {
       _titleController.text = widget.note!.title;
       _contentController.text = widget.note!.content;
+      selectedColor = Color(widget.note!.colorValue);
+    } else {
+      _loadDefaultColor();
     }
 
-    if (widget.note != null) {
-      selectedColor = Color(widget.note!.colorValue);
+    // if (widget.note != null) {
+    //   selectedColor = Color(widget.note!.colorValue);
+    // }
+  }
+
+  Future<void> _loadDefaultColor() async {
+    final prefs = await SharedPreferences.getInstance();
+    int? colorValue = prefs.getInt('defaultNoteColor');
+    if (colorValue != null) {
+      setState(() {
+        selectedColor = Color(colorValue);
+      });
     }
   }
 
   Future<void> _pickReminder() async {
+    final prefs = await SharedPreferences.getInstance();
+    final notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    if (notificationsEnabled == false) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Notifications Disabled"),
+            content: Text(
+              "Please enable notifications in settings to use reminders.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _handleBack();
+                  bottomNavGlobalKey.currentState?.changeTab(2);
+                },
+                child: Text("Open Settings"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -143,99 +192,110 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  hintText: "Title",
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: selectedColor, width: 1.0),
+        body: GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity! < 0) {
+              // Swipe left
+              _handleBack();
+            } else if (details.primaryVelocity! > 0) {
+              // Swipe right
+              _handleBack();
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    hintText: "Title",
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: selectedColor, width: 1.0),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: selectedColor, width: 2.0),
+                    ),
+                    // Volitelně: stejná barva i pro další stavy
+                    disabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: selectedColor),
+                    ),
+                    errorBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: selectedColor),
+                    ),
+                    focusedErrorBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: selectedColor),
+                    ),
                   ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: selectedColor, width: 2.0),
-                  ),
-                  // Volitelně: stejná barva i pro další stavy
-                  disabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: selectedColor),
-                  ),
-                  errorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: selectedColor),
-                  ),
-                  focusedErrorBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: selectedColor),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _contentController,
+                    decoration: const InputDecoration(
+                      hintText: "Note content...",
+                      border: InputBorder.none,
+                    ),
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    expands: true,
                   ),
                 ),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: TextField(
-                  controller: _contentController,
-                  decoration: const InputDecoration(
-                    hintText: "Note content...",
-                    border: InputBorder.none,
+
+                if (!isNewNote)
+                  ElevatedButton.icon(
+                    onPressed: _pickReminder,
+                    icon: Icon(Icons.alarm),
+                    label: Text(
+                      reminderDate == null
+                          ? "Set a reminder"
+                          : "Reminder: ${reminderDate.toString()}",
+                    ),
                   ),
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  expands: true,
-                ),
-              ),
 
-              if (!isNewNote)
-                ElevatedButton.icon(
-                  onPressed: _pickReminder,
-                  icon: Icon(Icons.alarm),
-                  label: Text(
-                    reminderDate == null
-                        ? "Nastavit připomínku"
-                        : "Připomínka: ${reminderDate.toString()}",
-                  ),
-                ),
+                // Row(
+                //   children: [
+                //     for (final color in [
+                //       Colors.red,
+                //       Colors.green,
+                //       Colors.blue,
+                //       Colors.orange,
+                //       Colors.purple,
+                //     ])
+                //       GestureDetector(
+                //         onTap: () async {
+                //           setState(() {
+                //             selectedColor = color;
+                //           });
 
-              // Row(
-              //   children: [
-              //     for (final color in [
-              //       Colors.red,
-              //       Colors.green,
-              //       Colors.blue,
-              //       Colors.orange,
-              //       Colors.purple,
-              //     ])
-              //       GestureDetector(
-              //         onTap: () async {
-              //           setState(() {
-              //             selectedColor = color;
-              //           });
-
-              //           if (!isNewNote && widget.note != null) {
-              //             await isarService.updateNoteColor(
-              //               widget.note!.id,
-              //               color.value,
-              //             );
-              //           }
-              //         },
-              //         child: Container(
-              //           margin: const EdgeInsets.symmetric(horizontal: 4),
-              //           width: 28,
-              //           height: 28,
-              //           decoration: BoxDecoration(
-              //             color: color,
-              //             shape: BoxShape.circle,
-              //             border: Border.all(
-              //               color: selectedColor == color
-              //                   ? Colors.black
-              //                   : Colors.transparent,
-              //               width: 2,
-              //             ),
-              //           ),
-              //         ),
-              //       ),
-              //   ],
-              // ),
-            ],
+                //           if (!isNewNote && widget.note != null) {
+                //             await isarService.updateNoteColor(
+                //               widget.note!.id,
+                //               color.value,
+                //             );
+                //           }
+                //         },
+                //         child: Container(
+                //           margin: const EdgeInsets.symmetric(horizontal: 4),
+                //           width: 28,
+                //           height: 28,
+                //           decoration: BoxDecoration(
+                //             color: color,
+                //             shape: BoxShape.circle,
+                //             border: Border.all(
+                //               color: selectedColor == color
+                //                   ? Colors.black
+                //                   : Colors.transparent,
+                //               width: 2,
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //   ],
+                // ),
+              ],
+            ),
           ),
         ),
       ),

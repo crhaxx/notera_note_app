@@ -7,18 +7,20 @@ import 'package:notera_note/views/settings_page.dart';
 class BottomNavScreen extends StatefulWidget {
   final bool isDark;
   final Function(bool) changeTheme;
+  final int? initialIndex;
 
   const BottomNavScreen({
     super.key,
     required this.isDark,
     required this.changeTheme,
+    this.initialIndex,
   });
 
   @override
-  State<BottomNavScreen> createState() => _BottomNavScreenState();
+  State<BottomNavScreen> createState() => BottomNavScreenState();
 }
 
-class _BottomNavScreenState extends State<BottomNavScreen> {
+class BottomNavScreenState extends State<BottomNavScreen> {
   int _selectedIndex = 0;
   late IsarService isarService;
   late List<Widget> _pages;
@@ -28,6 +30,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   void initState() {
     super.initState();
     isarService = IsarService();
+    _selectedIndex = widget.initialIndex ?? 0;
     _createPages();
   }
 
@@ -44,13 +47,27 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     ];
   }
 
-  void _onItemTapped(int index) {
+  void changeTab(int index) {
+    if (index == _selectedIndex) return;
+
     setState(() {
       _selectedIndex = index;
     });
 
     if (index == 0) {
       _homePageKey.currentState?.refreshNotes();
+    }
+  }
+
+  void _onItemTapped(int index) {
+    changeTab(index);
+  }
+
+  @override
+  void didUpdateWidget(BottomNavScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isDark != widget.isDark) {
+      _createPages(); // Znovu vytvoří stránky s novým tématem
     }
   }
 

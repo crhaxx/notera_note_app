@@ -194,6 +194,12 @@ class NoteTile extends StatelessWidget {
                                     child: CircleAvatar(
                                       backgroundColor: color,
                                       radius: 20,
+                                      child: note.colorValue == color.value
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                            )
+                                          : null,
                                     ),
                                   ),
                               ],

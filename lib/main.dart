@@ -4,6 +4,7 @@ import 'package:notera_note/utils/navbar_logic.dart';
 import 'package:notera_note/utils/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:notera_note/utils/app_globals.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,10 @@ void main() async {
       defaultColor: const Color(0xFF9D50DD),
       importance: NotificationImportance.High,
       channelShowBadge: true,
+      playSound: true,
+      enableVibration: true,
+      defaultRingtoneType: DefaultRingtoneType.Notification,
+      icon: 'resource://mipmap/noteraapp',
     ),
   ], debug: true);
 
@@ -77,7 +82,8 @@ class _NoteraAppState extends State<NoteraApp> {
       title: 'Notera',
       theme: isDark ? AppThemes.darkTheme : AppThemes.lightTheme,
       home: BottomNavScreen(
-        key: ValueKey(isDark), // This forces rebuild when theme changes
+        key:
+            bottomNavGlobalKey, // ValueKey(isDark) This forces rebuild when theme changes
         isDark: isDark,
         changeTheme: changeTheme,
       ),

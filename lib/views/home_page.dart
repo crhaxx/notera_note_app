@@ -104,7 +104,10 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
   void _openNote(Note? note) async {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => NoteDetailPage(note: note)),
+      MaterialPageRoute(
+        builder: (context) =>
+            NoteDetailPage(note: note, changeTheme: widget.changeTheme),
+      ),
     ).then((value) {
       if (value == true) {
         _loadNotes();
@@ -155,6 +158,7 @@ class HomePageState extends State<HomePage> implements HomePageStateInterface {
                 _toggleView();
               }
             },
+            onDoubleTap: () => _openNote(null),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: isGrid
