@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
 import 'package:notera_note/services/notification_service.dart';
+import 'package:notera_note/services/widget_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:notera_note/utils/app_globals.dart';
@@ -144,6 +145,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     }
 
     await isarService.addNote(note);
+
+    // po uložení aktualizovat widget
+    await WidgetService.updateLastNote(title, content);
   }
 
   Future<void> _handleBack() async {
