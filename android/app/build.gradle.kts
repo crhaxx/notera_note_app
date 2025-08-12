@@ -4,6 +4,7 @@ import java.io.FileInputStream
 plugins {
     id("com.android.application")
     id("kotlin-android")
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -13,33 +14,29 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-
 android {
     namespace = "com.darkgravestudios.notera_note"
-    compileSdk = 35
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
-    packagingOptions {
-        exclude("META-INF/**")
-    }
-
     compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.darkgravestudios.notera_note"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
-        targetSdk = 35
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        manifestPlaceholders["roundIcon"] = "@mipmap/noteraapp"
     }
 
     signingConfigs {
@@ -53,41 +50,11 @@ android {
 
     buildTypes {
         release {
+            // TODO: Add your own signing config for the release build.
+            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false // musí být true pokud chceš shrinkResources = true
-            isShrinkResources = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
-
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "androidx.core" && requested.name == "core") {
-                useVersion("1.12.0")
-                because("Fixes android:attr/lStar error for some libraries")
-            }
-            if (requested.group == "com.libs.isar_flutter_libs") {
-                useVersion("3.1.0+1")
-            }
-        }
-
-        resolutionStrategy {
-        force("androidx.core:core:1.12.0")
-        force("androidx.core:core-ktx:1.12.0")
-        force("androidx.work:work-runtime:2.9.0")
-    }
-    }
-}
-
-dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22")
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-
 }
 
 flutter {

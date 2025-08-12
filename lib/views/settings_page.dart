@@ -16,6 +16,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late bool _currentDarkMode;
+  bool remindersEnabled = true;
 
   @override
   void initState() {
@@ -41,19 +42,51 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "Current Theme: ${_currentDarkMode ? 'Dark' : 'Light'}",
-              style: const TextStyle(fontSize: 20),
-            ),
+            Text("Main Settings", style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 20),
             SwitchListTile(
               title: const Text("Toggle Dark Mode"),
+              subtitle: const Text("Enable or disable dark mode"),
               value: _currentDarkMode,
               onChanged: (bool value) {
                 setState(() {
                   _currentDarkMode = value;
                   widget.changeTheme(value);
                 });
+              },
+            ),
+
+            SwitchListTile(
+              title: const Text('Notifications'),
+              value: remindersEnabled,
+              subtitle: const Text(
+                'Enable or disable notifications for reminders (currently not implemented)',
+              ),
+              onChanged: (value) {
+                setState(() => remindersEnabled = value);
+              },
+            ),
+
+            ListTile(
+              title: const Text('Default Note Color'),
+              subtitle: const Text(
+                'Set the default color for new notes (currently not implemented)',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                // TODO: Otevřít color picker
+              },
+            ),
+
+            const Divider(),
+
+            ListTile(
+              title: const Text('About Notera'),
+              subtitle: const Text(
+                'Information about the app (currently not implemented)',
+              ),
+              onTap: () {
+                // TODO: Navigace na info stránku
               },
             ),
           ],
