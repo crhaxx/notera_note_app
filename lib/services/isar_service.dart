@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:notera_note/services/encryption_service.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/note.dart';
 
@@ -78,5 +79,21 @@ class IsarService {
       note.colorValue = colorValue;
       await isar.writeTxn(() => isar.notes.put(note));
     }
+  }
+
+  Future<void> lockNote(Note note, bool lock) async {
+    final isar = await db;
+    note.isLocked = lock;
+    note.updatedAt = DateTime.now();
+
+    if (lock) {
+      note.content = await EncryptionService.encrypt(note.content);
+    } else {
+      note.content = await EncryptionService.decrypt(note.content);
+    }
+
+    await isar.writeTxn(() async {
+      await isar.notes.put(note);
+    });
   }
 }

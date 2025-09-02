@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:notera_note/models/note.dart';
+import 'package:notera_note/services/encryption_service.dart';
 import 'package:notera_note/services/isar_service.dart';
 import 'package:notera_note/services/notification_service.dart';
 import 'package:notera_note/services/widget_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:notera_note/utils/app_globals.dart';
+import 'package:flutter/services.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final Note? note;
@@ -21,6 +24,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
   final isarService = IsarService();
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
+  final auth = LocalAuthentication();
+
   late bool isNewNote;
   bool isDark = true;
   Color selectedColor = Colors.black;
@@ -33,7 +38,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
 
     if (!isNewNote) {
       _titleController.text = widget.note!.title;
-      _contentController.text = widget.note!.content;
+      _contentController.text = widget.note!.isLocked
+          ? "🔒 Locked note"
+          : widget.note!.content;
       selectedColor = Color(widget.note!.colorValue);
     } else {
       _loadDefaultColor();
@@ -131,7 +138,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         );
 
     note.title = title;
-    note.content = content;
+    if (note.isLocked) {
+      note.content = content;
+    }
+
     note.colorValue = selectedColor.value;
     note.updatedAt = DateTime.now();
 
@@ -147,12 +157,42 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     await isarService.addNote(note);
 
     // po uložení aktualizovat widget
-    await WidgetService.updateLastNote(title, content);
+    await WidgetService.updateLastNoteForWidget(
+      title: note.title,
+      content: note.content,
+      noteId: note.id.toString(),
+    );
   }
 
   Future<void> _handleBack() async {
     await _saveNote();
     Navigator.pop(context, true);
+  }
+
+  Future<void> _toggleLock() async {
+    if (widget.note == null) return;
+
+    if (widget.note!.isLocked) {
+      // odemykání
+      final didAuth = await auth.authenticate(
+        localizedReason: 'Ověřte se pro odemčení poznámky',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+      if (didAuth) {
+        await isarService.lockNote(widget.note!, false);
+        final decrypted = await EncryptionService.decrypt(widget.note!.content);
+        setState(() {
+          _contentController.text = decrypted;
+        });
+      }
+    } else {
+      // zamykání
+      await isarService.lockNote(widget.note!, true);
+      setState(() {
+        _contentController.text = "🔒 Locked note";
+      });
+    }
+    setState(() {});
   }
 
   @override
@@ -194,6 +234,14 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 Share.share(textToShare);
               },
             ),
+
+            if (!isNewNote)
+              IconButton(
+                icon: Icon(
+                  widget.note?.isLocked == true ? Icons.lock : Icons.lock_open,
+                ),
+                onPressed: _toggleLock,
+              ),
           ],
         ),
         body: GestureDetector(

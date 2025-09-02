@@ -23,7 +23,7 @@ class _AboutPageState extends State<AboutPage> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Version 1.0.0',
+              'Version 1.0.3',
               style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 16),

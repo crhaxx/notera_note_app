@@ -18,6 +18,9 @@ class Note {
   @Index()
   bool isArchived = false;
 
+  @Index()
+  bool isLocked = false;
+
   int colorValue = 0x000000;
 
   DateTime createdAt;
@@ -28,6 +31,7 @@ class Note {
     required this.content,
     required this.createdAt,
     required this.updatedAt,
+    this.isLocked = false,
   });
 
   Note.create({required this.title, required this.content})

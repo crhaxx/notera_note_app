@@ -28,7 +28,7 @@ public class LastNoteWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.last_note_widget);
 
         // Nastavení textu
-        views.setTextViewText(R.id.widget_note_title, title != null ? title : "Žádná poznámka");
+        views.setTextViewText(R.id.widget_note_title, title != null ? title : "No Note Available");
         views.setTextViewText(R.id.widget_note_content, content != null ? content : "");
 
         // Detekce světlého/tmavého režimu

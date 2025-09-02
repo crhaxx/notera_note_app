@@ -4,7 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
+  flutter_secure_storage_windows
   isar_flutter_libs
+  local_auth_windows
   share_plus
   url_launcher_windows
 )

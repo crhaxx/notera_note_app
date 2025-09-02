@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/services/isar_service.dart';
+import 'package:notera_note/services/widget_service.dart';
 import 'package:notera_note/utils/navbar_logic.dart';
 import 'package:notera_note/utils/themes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +45,16 @@ class _NoteraAppState extends State<NoteraApp> {
     super.initState();
     _loadTheme();
     allowNotifications();
+
+    // 1️⃣ Spuštění aplikace z widgetu
+    WidgetService().checkIfOpenedFromWidget((noteId) {
+      Navigator.pushNamed(context, '/note', arguments: noteId);
+    });
+
+    // 2️⃣ Kliknutí na widget za běhu aplikace
+    WidgetService().listenForWidgetClicks((noteId) {
+      Navigator.pushNamed(context, '/note', arguments: noteId);
+    });
   }
 
   void allowNotifications() async {
