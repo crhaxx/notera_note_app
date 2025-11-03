@@ -42,7 +42,7 @@ class BottomNavScreenState extends State<BottomNavScreen> {
         isarService: isarService,
         changeTheme: widget.changeTheme,
       ),
-      ArchivePage(),
+      ArchivePage(changeTheme: widget.changeTheme,),
       SettingsPage(isDark: widget.isDark, changeTheme: widget.changeTheme),
     ];
   }

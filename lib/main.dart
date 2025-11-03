@@ -46,12 +46,10 @@ class _NoteraAppState extends State<NoteraApp> {
     _loadTheme();
     allowNotifications();
 
-    // 1️⃣ Spuštění aplikace z widgetu
     WidgetService().checkIfOpenedFromWidget((noteId) {
       Navigator.pushNamed(context, '/note', arguments: noteId);
     });
 
-    // 2️⃣ Kliknutí na widget za běhu aplikace
     WidgetService().listenForWidgetClicks((noteId) {
       Navigator.pushNamed(context, '/note', arguments: noteId);
     });

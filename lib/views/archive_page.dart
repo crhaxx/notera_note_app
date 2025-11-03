@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:notera_note/models/note.dart';
 import 'package:notera_note/services/isar_service.dart';
+import 'package:notera_note/views/note_detail_page.dart';
 
 class ArchivePage extends StatefulWidget {
-  const ArchivePage({super.key});
+  final Function(bool) changeTheme;
+
+  const ArchivePage({super.key, required this.changeTheme});
 
   @override
   State<ArchivePage> createState() => _ArchivePageState();
@@ -11,6 +14,16 @@ class ArchivePage extends StatefulWidget {
 
 class _ArchivePageState extends State<ArchivePage> {
   final isarService = IsarService();
+
+  void _openNote(Note? note) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            NoteDetailPage(note: note, changeTheme: widget.changeTheme),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +44,7 @@ class _ArchivePageState extends State<ArchivePage> {
             itemBuilder: (context, index) {
               final note = notes[index];
               return ListTile(
+                onTap: () => _openNote(note),
                 title: Text(note.title),
                 subtitle: Text(note.content),
                 trailing: IconButton(
