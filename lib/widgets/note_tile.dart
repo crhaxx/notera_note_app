@@ -24,7 +24,7 @@ class NoteTile extends StatelessWidget {
     final isarService = IsarService();
 
     Future<void> _deleteNote(Note note) async {
-      await isarService.deleteNote(note.id);
+      await isarService.moveToDeleted(note.id, true);
     }
 
     if (isGrid) {

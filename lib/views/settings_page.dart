@@ -1,6 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:notera_note/views/about_page.dart';
+import 'package:notera_note/views/deleted_note_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -194,6 +195,21 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
 
               const Divider(),
+
+              ListTile(
+                leading: Icon(Icons.remove_red_eye),
+                title: Text("View Deleted Notes"),
+                subtitle: Text("Delete or restore deleted notes"),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          DeletedNotePage(changeTheme: widget.changeTheme),
+                    ),
+                  );
+                },
+              ),
 
               ListTile(
                 leading: const Icon(Icons.info_outline),

@@ -24,6 +24,8 @@ class IsarService {
     return await isar.notes
         .where()
         .isArchivedEqualTo(false)
+        .filter()
+        .isDeletedEqualTo(false)
         .sortByIsPinnedDesc()
         .thenByCreatedAtDesc()
         .findAll();
@@ -32,15 +34,6 @@ class IsarService {
   Future<void> addNote(Note note) async {
     final isar = await db;
     await isar.writeTxn(() => isar.notes.put(note));
-  }
-
-  Future<void> deleteNote(int id) async {
-    final isar = await db;
-    final noteExists = await isar.notes.get(id) != null;
-
-    if (noteExists) {
-      await isar.writeTxn(() => isar.notes.delete(id));
-    }
   }
 
   Future<void> togglePin(Note note) async {
@@ -63,11 +56,41 @@ class IsarService {
     });
   }
 
+  Future<void> moveToDeleted(int id, bool value) async {
+    final isar = await db;
+    await isar.writeTxn(() async {
+      final note = await isar.notes.get(id);
+      if (note != null) {
+        note.isDeleted = value;
+        await isar.notes.put(note);
+      }
+    });
+  }
+
+  Future<void> deleteNote(int id) async {
+    final isar = await db;
+    final noteExists = await isar.notes.get(id) != null;
+
+    final note = await isar.notes.get(id);
+    if (noteExists && note!.isDeleted) {
+      await isar.writeTxn(() => isar.notes.delete(id));
+    }
+  }
+
   Stream<List<Note>> listenToNotes({bool filterArchived = false}) async* {
     final isar = await db;
     final query = isar.notes
         .filter()
         .isArchivedEqualTo(filterArchived)
+        .sortByCreatedAtDesc();
+    yield* query.watch(fireImmediately: true);
+  }
+
+  Stream<List<Note>> listenToDeletedNotes({bool filterDeleted = false}) async* {
+    final isar = await db;
+    final query = isar.notes
+        .filter()
+        .isDeletedEqualTo(filterDeleted)
         .sortByCreatedAtDesc();
     yield* query.watch(fireImmediately: true);
   }

@@ -21,6 +21,9 @@ class Note {
   @Index()
   bool isLocked = false;
 
+  @Index()
+  bool isDeleted = false;
+
   int colorValue = 0x000000;
 
   DateTime createdAt;
