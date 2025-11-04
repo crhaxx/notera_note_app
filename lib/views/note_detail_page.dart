@@ -138,9 +138,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         );
 
     note.title = title;
-    if (note.isLocked) {
-      note.content = content;
-    }
+    note.content = content;
 
     note.colorValue = selectedColor.value;
     note.updatedAt = DateTime.now();
@@ -162,6 +160,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
       content: note.content,
       noteId: note.id.toString(),
     );
+
+    print(content + note.content);
   }
 
   Future<void> _handleBack() async {

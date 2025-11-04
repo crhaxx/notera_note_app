@@ -23,6 +23,21 @@ class NoteTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isarService = IsarService();
 
+    Icon leadIcon() {
+      if (note.isLocked) {
+        return note.isPinned
+            ? Icon(Icons.lock, color: Colors.white)
+            : Icon(Icons.lock, color: Colors.grey);
+      } else {
+        return Icon(
+          note.isPinned ? Icons.text_fields : Icons.text_fields_outlined,
+          color: note.isPinned
+              ? Color(note.colorValue)
+              : Color(note.colorValue).withAlpha(180),
+        );
+      }
+    }
+
     Future<void> _deleteNote(Note note) async {
       await isarService.moveToDeleted(note.id, true);
     }
@@ -149,15 +164,11 @@ class NoteTile extends StatelessWidget {
             note.content,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: note.isLocked ? Colors.grey : Colors.white),
           ),
           onTap: onTap,
           onLongPress: onLongPress,
-          leading: Icon(
-            note.isPinned ? Icons.text_fields : Icons.text_fields_outlined,
-            color: note.isPinned
-                ? Color(note.colorValue)
-                : Color(note.colorValue).withAlpha(180),
-          ),
+          leading: leadIcon(),
           trailing: PopupMenuButton<int>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) async {

@@ -45,8 +45,16 @@ class _ArchivePageState extends State<ArchivePage> {
               final note = notes[index];
               return ListTile(
                 onTap: () => _openNote(note),
-                title: Text(note.title),
-                subtitle: Text(note.content),
+                title: Text(
+                  note.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  note.content,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 trailing: IconButton(
                   icon: Icon(Icons.unarchive),
                   onPressed: () {

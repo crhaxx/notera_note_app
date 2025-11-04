@@ -52,68 +52,71 @@ class _ArchivePageState extends State<DeletedNotePage> {
                 title: Text(note.title),
                 subtitle: Text(note.content),
 
-                // trailing: PopupMenuButton<int>(
-                //   icon: const Icon(Icons.more_vert),
-                //   onSelected: (value) async {
-                //     switch (value) {
-                //       case 0: // Pin/Unpin
-                //         await isarService.togglePin(note);
+                trailing: PopupMenuButton<int>(
+                  icon: const Icon(Icons.more_vert),
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 0: // Pin/Unpin
+                        await isarService.moveToDeleted(note.id, false);
 
-                //         break;
+                        break;
 
-                //       case 1: // Delete
-                //         final shouldDelete = await showDialog<bool>(
-                //           context: context,
-                //           builder: (context) => AlertDialog(
-                //             title: Text("Delete note?"),
-                //             content: Text(
-                //               "Are you sure you want to delete this note?",
-                //             ),
-                //             actions: [
-                //               TextButton(
-                //                 onPressed: () => Navigator.pop(context, false),
-                //                 child: Text("Cancel"),
-                //               ),
-                //               TextButton(
-                //                 onPressed: () => Navigator.pop(context, true),
-                //                 child: Text(
-                //                   "Delete",
-                //                   style: TextStyle(color: Colors.red),
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         );
-                //         if (shouldDelete == true) {
-                //           await _deleteNote(note);
-                //         }
-                //         break;
-                //     }
-                //   },
-                //   itemBuilder: (context) => [
-                //     PopupMenuItem(
-                //       value: 0,
-                //       child: Row(
-                //         children: [
-                //           Icon(Icons.restore, size: 20),
-                //           const SizedBox(width: 8),
-                //           Text('Restore'),
-                //         ],
-                //       ),
-                //     ),
-                //     // const PopupMenuDivider(),
-                //     PopupMenuItem(
-                //       value: 3,
-                //       child: Row(
-                //         children: [
-                //           Icon(Icons.delete, size: 20, color: Colors.red),
-                //           const SizedBox(width: 8),
-                //           Text('Delete', style: TextStyle(color: Colors.red)),
-                //         ],
-                //       ),
-                //     ),
-                //   ],
-                // ),
+                      case 1: // Delete
+                        final shouldDelete = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Delete note?"),
+                            content: Text(
+                              "Are you sure you want to delete this note?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(
+                                  "Cancel",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: Text(
+                                  "Delete",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (shouldDelete == true) {
+                          await _deleteNote(note);
+                        }
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        children: [
+                          Icon(Icons.restore, size: 20),
+                          const SizedBox(width: 8),
+                          Text('Restore'),
+                        ],
+                      ),
+                    ),
+                    // const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 20, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           );
