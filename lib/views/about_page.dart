@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
 
 class AboutPage extends StatefulWidget {
-  const AboutPage({super.key});
+  final String appVersion;
+  final String appName;
+  final String packageName;
+  final String developerName;
+  final String description;
+  final String licenseUrl;
+  final String lastUpdated;
+
+  const AboutPage({
+    super.key,
+    required this.appVersion,
+    required this.appName,
+    required this.packageName,
+    required this.developerName,
+    required this.description,
+    required this.licenseUrl,
+    required this.lastUpdated,
+  });
 
   @override
   State<AboutPage> createState() => _AboutPageState();
@@ -17,21 +34,48 @@ class _AboutPageState extends State<AboutPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Notera is a simple note-taking app built with Flutter.',
-              style: TextStyle(fontSize: 18),
+            Text(
+              widget.appName,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+
+            Text(
+              widget.packageName,
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+
             const SizedBox(height: 16),
-            const Text(
-              'Version 1.0.3',
+
+            Text(widget.description, style: TextStyle(fontSize: 18)),
+
+            const SizedBox(height: 16),
+
+            Text(
+              "Developer: " + widget.developerName,
+              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+            ),
+            Text(
+              "Version: " + widget.appVersion,
+              style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+            ),
+            Text(
+              "Last Updated: " + widget.lastUpdated,
               style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Back'),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Back'),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('View Licenses'),
+                ),
+              ],
             ),
           ],
         ),

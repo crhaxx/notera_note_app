@@ -2,6 +2,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:notera_note/views/about_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   final bool isDark;
@@ -195,12 +196,35 @@ class _SettingsPageState extends State<SettingsPage> {
               const Divider(),
 
               ListTile(
+                leading: const Icon(Icons.info_outline),
                 title: const Text('About Notera'),
                 subtitle: const Text('Information about the app'),
-                onTap: () {
+                onTap: () async {
+                  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+                  String appName = packageInfo.appName;
+                  String packageName = packageInfo.packageName;
+                  String version = packageInfo.version;
+
+                  ///String buildNumber = packageInfo.buildNumber;
+                  String lastUpdated = packageInfo.updateTime.toString();
+                  String developerName = "Crhaxx";
+                  String description =
+                      "Notera is a modern, offline-first Flutter note-taking app designed for simplicity, privacy, and productivity. It combines elegant design with powerful features like voice notes, sketches, versioning, biometric protection, and optional cloud sync.";
+
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AboutPage()),
+                    MaterialPageRoute(
+                      builder: (context) => AboutPage(
+                        appName: appName,
+                        appVersion: version,
+                        packageName: packageName,
+                        description: description,
+                        developerName: developerName,
+                        licenseUrl: "",
+                        lastUpdated: lastUpdated,
+                      ),
+                    ),
                   );
                 },
               ),

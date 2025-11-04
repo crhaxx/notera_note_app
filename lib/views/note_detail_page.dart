@@ -220,7 +220,9 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.share),
+              icon: widget.note != null || widget.note?.isLocked == false
+                  ? Icon(Icons.share)
+                  : SizedBox(),
               onPressed: () {
                 final title = _titleController.text.trim();
                 final content = _contentController.text.trim();
