@@ -5,6 +5,7 @@ import 'package:notera_note/services/encryption_service.dart';
 import 'package:notera_note/services/isar_service.dart';
 import 'package:notera_note/services/notification_service.dart';
 import 'package:notera_note/services/widget_service.dart';
+import 'package:notera_note/widgets/rich_input_field.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:notera_note/utils/app_globals.dart';
@@ -285,16 +286,18 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: TextField(
-                    controller: _contentController,
-                    decoration: const InputDecoration(
-                      hintText: "Note content...",
-                      border: InputBorder.none,
-                    ),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    expands: true,
-                  ),
+                  child: RichInputField(controller: _contentController),
+
+                  // TextField(
+                  //   controller: _contentController,
+                  //   decoration: const InputDecoration(
+                  //     hintText: "Note content...",
+                  //     border: InputBorder.none,
+                  //   ),
+                  //   keyboardType: TextInputType.multiline,
+                  //   maxLines: null,
+                  //   expands: true,
+                  // ),
                 ),
 
                 if (!isNewNote)
