@@ -139,7 +139,10 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
         );
 
     note.title = title;
-    note.content = content;
+
+    if (!widget.note!.isLocked) {
+      note.content = content;
+    }
 
     note.colorValue = selectedColor.value;
     note.updatedAt = DateTime.now();
@@ -176,7 +179,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
     if (widget.note!.isLocked) {
       // odemykání
       final didAuth = await auth.authenticate(
-        localizedReason: 'Ověřte se pro odemčení poznámky',
+        localizedReason: 'Verify yourself to unlock the note',
         options: const AuthenticationOptions(biometricOnly: true),
       );
       if (didAuth) {
@@ -286,7 +289,15 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: RichInputField(controller: _contentController),
+                  child: widget.note!.isLocked
+                      ? TextField(
+                          enabled: false,
+                          decoration: const InputDecoration(
+                            hintText: "🔒 Locked note",
+                            border: InputBorder.none,
+                          ),
+                        )
+                      : RichInputField(controller: _contentController),
 
                   // TextField(
                   //   controller: _contentController,

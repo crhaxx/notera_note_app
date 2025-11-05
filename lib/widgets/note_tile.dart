@@ -161,7 +161,7 @@ class NoteTile extends StatelessWidget {
             ),
           ),
           subtitle: Text(
-            note.content,
+            note.isLocked ? "🔒 Locked note" : note.content,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(color: note.isLocked ? Colors.grey : Colors.white),
