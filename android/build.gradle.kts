@@ -1,3 +1,5 @@
+extra["flutterMinSdkVersion"] = 23
+
 allprojects {
     repositories {
         google()

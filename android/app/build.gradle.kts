@@ -33,7 +33,7 @@ android {
         applicationId = "com.darkgravestudios.notera_note"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = (rootProject.extra["flutterMinSdkVersion"] as Int)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
